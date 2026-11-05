@@ -15,6 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Descompactar o projeto enviado em .zip (se houver)
+        run: |
+          shopt -s nullglob
+          for z in *.zip; do echo "Descompactando $z"; unzip -o -q "$z" -x '.github/*'; done
       - name: Localizar o projeto
         id: dir
         run: |
