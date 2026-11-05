@@ -1,0 +1,14 @@
+{
+  "name": "DogStar Pet Style",
+  "short_name": "DogStar",
+  "description": "Provador virtual de tosas, roupas e acessórios da DogStar Banho e Tosa.",
+  "lang": "pt-BR",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff7900",
+  "icons": [
+    { "src": "images/logo/icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "images/logo/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
