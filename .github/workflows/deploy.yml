@@ -22,8 +22,12 @@ jobs:
       - name: Localizar o projeto
         id: dir
         run: |
-          if [ -f package.json ]; then D=.; else D=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -1)"); fi
-          if [ -z "$D" ] || [ ! -f "$D/package.json" ]; then echo "::error::package.json não encontrado. O código do site não foi enviado ao repositório."; ls -la; exit 1; fi
+          # pasta que tem package.json E src/ (a raiz ou uma subpasta)
+          D=""
+          for f in $(find . -name package.json -not -path '*/node_modules/*' | awk '{ print length, $0 }' | sort -n | cut -d' ' -f2-); do
+            d=$(dirname "$f"); if [ -d "$d/src" ]; then D="$d"; break; fi
+          done
+          if [ -z "$D" ]; then echo "::error::Projeto completo (package.json + pasta src) não encontrado no repositório."; ls -la; exit 1; fi
           echo "Projeto em: $D"; ls -la "$D"
           echo "dir=$D" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
