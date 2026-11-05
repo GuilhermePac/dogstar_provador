@@ -15,20 +15,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Localizar o projeto
+        id: dir
+        run: |
+          if [ -f package.json ]; then D=.; else D=$(dirname "$(find . -name package.json -not -path '*/node_modules/*' | head -1)"); fi
+          if [ -z "$D" ] || [ ! -f "$D/package.json" ]; then echo "::error::package.json não encontrado. O código do site não foi enviado ao repositório."; ls -la; exit 1; fi
+          echo "Projeto em: $D"; ls -la "$D"
+          echo "dir=$D" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm test
+      - name: Instalar dependências
+        working-directory: ${{ steps.dir.outputs.dir }}
+        run: if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Testes
+        working-directory: ${{ steps.dir.outputs.dir }}
+        run: npm test
       - name: Gerar o site
+        working-directory: ${{ steps.dir.outputs.dir }}
         run: |
           REPO="${GITHUB_REPOSITORY#*/}"
           if [[ "$REPO" == *.github.io ]]; then export BASE_PATH="/"; else export BASE_PATH="/$REPO/"; fi
           npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ${{ steps.dir.outputs.dir }}/dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
